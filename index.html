@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>フルーツキャッチ</title>
+  </head>
+  <body>
+    <div id="app">
+      <video id="camera-feed" playsinline muted autoplay></video>
+      <div id="game-container"></div>
+      <div id="orientation-guard">
+        <p>端末を横向きにしてください</p>
+      </div>
+      <button id="start-button" type="button">
+        <span id="start-button-title">フルーツキャッチ</span>
+        <span id="start-button-label">タップしてスタート</span>
+      </button>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,92 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+}
+
+#app {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
+
+#camera-feed {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+  z-index: 0;
+}
+
+#game-container {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+#game-container canvas {
+  width: 100%;
+  height: 100%;
+}
+
+#orientation-guard {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.9);
+  color: #fff;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+@media (orientation: portrait) {
+  #orientation-guard {
+    display: flex;
+  }
+}
+
+#start-button {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+
+#start-button-title {
+  font-size: 3rem;
+  font-weight: bold;
+}
+
+#start-button-label {
+  font-size: 1.5rem;
+  padding: 12px 32px;
+  border: 2px solid #fff;
+  border-radius: 999px;
+}
+
+#start-button.hidden {
+  display: none;
+}
