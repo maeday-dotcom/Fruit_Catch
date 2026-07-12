@@ -3,8 +3,6 @@ import { Fruit } from './Fruit';
 
 const EMOJIS = ['🍎', '🍊', '🍇', '🍌'];
 
-export type Side = 'left' | 'right';
-
 export interface FruitSpawnerOptions {
   minInterval?: number;
   maxInterval?: number;
@@ -14,7 +12,6 @@ export interface FruitSpawnerOptions {
 
 export class FruitSpawner {
   private readonly scene: Phaser.Scene;
-  private readonly side: Side;
   private readonly minInterval: number;
   private readonly maxInterval: number;
   private readonly fruitRadius: number;
@@ -24,11 +21,10 @@ export class FruitSpawner {
   private nextInterval = 0;
   private readonly fruits: Fruit[] = [];
 
-  constructor(scene: Phaser.Scene, side: Side, options: FruitSpawnerOptions = {}) {
+  constructor(scene: Phaser.Scene, options: FruitSpawnerOptions = {}) {
     this.scene = scene;
-    this.side = side;
-    this.minInterval = options.minInterval ?? 0.7;
-    this.maxInterval = options.maxInterval ?? 1.2;
+    this.minInterval = options.minInterval ?? 0.5;
+    this.maxInterval = options.maxInterval ?? 0.9;
     this.fruitRadius = options.fruitRadius ?? 30;
     this.fallSpeedRatio = options.fallSpeedRatio ?? 0.4;
     this.scheduleNext();
@@ -69,11 +65,8 @@ export class FruitSpawner {
   private spawn(): void {
     const width = this.scene.scale.width;
     const height = this.scene.scale.height;
-    const halfWidth = width / 2;
-    const xMin = this.side === 'left' ? 0 : halfWidth;
-    const xMax = this.side === 'left' ? halfWidth : width;
 
-    const x = Phaser.Math.FloatBetween(xMin + this.fruitRadius, xMax - this.fruitRadius);
+    const x = Phaser.Math.FloatBetween(this.fruitRadius, width - this.fruitRadius);
     const spawnY = -this.fruitRadius;
     const bottomY = height + this.fruitRadius;
     const fallSpeed = height * this.fallSpeedRatio;

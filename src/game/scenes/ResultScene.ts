@@ -7,11 +7,10 @@ export class ResultScene extends Phaser.Scene {
 
   create(): void {
     const { width, height } = this.scale;
-    const scoreP1 = this.registry.get('scoreP1') ?? 0;
-    const scoreP2 = this.registry.get('scoreP2') ?? 0;
+    const score = this.registry.get('score') ?? 0;
 
     this.add
-      .text(width / 2, height / 2 - 100, `P1: ${scoreP1}   P2: ${scoreP2}`, {
+      .text(width / 2, height / 2 - 100, `Score: ${score}`, {
         fontSize: '64px',
         color: '#ffffff',
         fontStyle: 'bold',

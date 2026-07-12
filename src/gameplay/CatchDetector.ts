@@ -1,36 +1,49 @@
 import type { NormalizedLandmark } from '@mediapipe/tasks-vision';
 import type { FruitSpawner } from './FruitSpawner';
+import { CATCH_CONNECTIONS, isLowVisibility, toScreenPoint } from '../pose/SkeletonRenderer';
 
-// Left wrist, right wrist, left index, right index (spec section 4.2).
-const CATCH_LANDMARK_INDICES = [15, 16, 19, 20];
-const MIN_VISIBILITY = 0.5;
 const HAND_RADIUS = 30;
 
-export class CatchDetector {
-  /** Checks one player's catch points against their spawner's fruits; returns the number caught. */
-  checkCatches(pose: NormalizedLandmark[], spawner: FruitSpawner, width: number, height: number): number {
-    let caughtCount = 0;
+interface Point {
+  x: number;
+  y: number;
+}
 
-    for (const index of CATCH_LANDMARK_INDICES) {
-      const landmark = pose[index];
-      if (landmark.visibility !== undefined && landmark.visibility < MIN_VISIBILITY) {
+/**
+ * Catch rule (updated spec): no P1/P2 split — any elbow-to-fingertip segment (either arm,
+ * either detected person) touching a fruit scores. Uses point-to-segment distance so a touch
+ * anywhere along the forearm/hand counts, not just at the wrist point.
+ */
+export class CatchDetector {
+  /** Checks one pose's catch segments against a spawner's fruits; returns the number caught. */
+  checkCatches(pose: NormalizedLandmark[], spawner: FruitSpawner, width: number, height: number): number {
+    const segments: Array<[Point, Point]> = [];
+    for (const [start, end] of CATCH_CONNECTIONS) {
+      if (isLowVisibility(pose[start]) || isLowVisibility(pose[end])) {
         continue;
       }
+      segments.push([toScreenPoint(pose[start], width, height), toScreenPoint(pose[end], width, height)]);
+    }
 
-      // Mirror to match the displayed (mirrored) camera feed (spec section 5, CLAUDE.md).
-      const mirroredX = 1 - landmark.x;
-      const screenX = mirroredX * width;
-      const screenY = landmark.y * height;
-
-      for (const fruit of [...spawner.activeFruits]) {
-        const distance = Math.hypot(screenX - fruit.x, screenY - fruit.y);
-        if (distance < fruit.radius + HAND_RADIUS) {
-          spawner.removeFruit(fruit);
-          caughtCount++;
-        }
+    let caughtCount = 0;
+    for (const fruit of [...spawner.activeFruits]) {
+      const touched = segments.some(([a, b]) => distanceToSegment(fruit.x, fruit.y, a, b) < fruit.radius + HAND_RADIUS);
+      if (touched) {
+        spawner.removeFruit(fruit);
+        caughtCount++;
       }
     }
 
     return caughtCount;
   }
+}
+
+function distanceToSegment(px: number, py: number, a: Point, b: Point): number {
+  const abx = b.x - a.x;
+  const aby = b.y - a.y;
+  const lengthSquared = abx * abx + aby * aby;
+  const t = lengthSquared === 0 ? 0 : Math.max(0, Math.min(1, ((px - a.x) * abx + (py - a.y) * aby) / lengthSquared));
+  const closestX = a.x + t * abx;
+  const closestY = a.y + t * aby;
+  return Math.hypot(px - closestX, py - closestY);
 }
