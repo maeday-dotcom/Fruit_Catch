@@ -1,15 +1,16 @@
 import Phaser from 'phaser';
 import { FruitSpawner } from '../../gameplay/FruitSpawner';
 import { CatchDetector } from '../../gameplay/CatchDetector';
-import { SkeletonRenderer } from '../../pose/SkeletonRenderer';
+import { HandOverlay } from '../../pose/HandOverlay';
+import { getHandPoints, type ScreenPoint } from '../../pose/HandPoints';
 import type { PoseProvider } from '../../pose/PoseProvider';
-import { playCatchSound } from '../../utils/sound';
+import { playMeowSound } from '../../utils/sound';
 
 const PLAY_DURATION_SECONDS = 30;
 
 export class PlayScene extends Phaser.Scene {
   private spawner!: FruitSpawner;
-  private skeletonRenderer!: SkeletonRenderer;
+  private handOverlay!: HandOverlay;
   private readonly catchDetector = new CatchDetector();
 
   private videoElement!: HTMLVideoElement;
@@ -32,7 +33,7 @@ export class PlayScene extends Phaser.Scene {
     this.registry.set('score', 0);
 
     this.spawner = new FruitSpawner(this);
-    this.skeletonRenderer = new SkeletonRenderer(this);
+    this.handOverlay = new HandOverlay(this);
     this.timeRemaining = PLAY_DURATION_SECONDS;
     this.isRoundOver = false;
 
@@ -43,7 +44,7 @@ export class PlayScene extends Phaser.Scene {
       fontStyle: 'bold',
     };
 
-    this.scoreText = this.add.text(24, 16, 'Score: 0', textStyle);
+    this.scoreText = this.add.text(24, 16, '0ニャー', textStyle);
     this.timeText = this.add.text(width / 2, 16, `残り ${this.timeRemaining}秒`, textStyle).setOrigin(0.5, 0);
   }
 
@@ -75,24 +76,25 @@ export class PlayScene extends Phaser.Scene {
 
     const result = this.poseProvider.detect(this.videoElement);
     if (!result || result.landmarks.length === 0) {
-      this.skeletonRenderer.draw([], this.scale.width, this.scale.height);
+      this.handOverlay.draw([]);
       return;
     }
 
     const width = this.scale.width;
     const height = this.scale.height;
-    this.skeletonRenderer.draw(result.landmarks, width, height);
 
-    let caughtThisFrame = 0;
+    const handPoints: ScreenPoint[] = [];
     for (const pose of result.landmarks) {
-      caughtThisFrame += this.catchDetector.checkCatches(pose, this.spawner, width, height);
+      handPoints.push(...getHandPoints(pose, width, height));
     }
+    this.handOverlay.draw(handPoints);
 
+    const caughtThisFrame = this.catchDetector.checkCatches(handPoints, this.spawner);
     if (caughtThisFrame > 0) {
       const score = this.registry.get('score') + caughtThisFrame;
       this.registry.set('score', score);
-      this.scoreText.setText(`Score: ${score}`);
-      playCatchSound();
+      this.scoreText.setText(`${score}ニャー`);
+      playMeowSound();
     }
   }
 }

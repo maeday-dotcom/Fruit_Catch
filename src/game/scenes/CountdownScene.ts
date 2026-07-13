@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 
 const COUNTDOWN_SECONDS = 3;
+const NYA_HOLD_MS = 700;
 
 export class CountdownScene extends Phaser.Scene {
   private count = COUNTDOWN_SECONDS;
@@ -35,7 +36,8 @@ export class CountdownScene extends Phaser.Scene {
     if (this.count > 0) {
       this.countText.setText(String(this.count));
     } else {
-      this.scene.start('Play');
+      this.countText.setText('にゃー');
+      this.time.delayedCall(NYA_HOLD_MS, () => this.scene.start('Play'));
     }
   }
 }

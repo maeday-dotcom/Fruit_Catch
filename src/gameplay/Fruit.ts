@@ -24,13 +24,14 @@ export class Fruit extends Phaser.GameObjects.Text {
     return true;
   }
 
-  /** Plays a quick scale-burst + fade, then destroys the fruit. */
+  /** Poofs into a cloud (scale-burst + fade), then destroys the fruit. */
   playCatchEffect(): void {
+    this.setText('☁️');
     this.scene.tweens.add({
       targets: this,
       scale: { from: 1, to: 1.8 },
       alpha: { from: 1, to: 0 },
-      duration: 200,
+      duration: 260,
       ease: 'Cubic.Out',
       onComplete: () => this.destroy(),
     });

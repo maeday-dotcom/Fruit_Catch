@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { Fruit } from './Fruit';
 
-const EMOJIS = ['🍎', '🍊', '🍇', '🍌'];
+const EMOJIS = ['🐈', '🐱', '🐈‍⬛', '😺'];
 
 export interface FruitSpawnerOptions {
   minInterval?: number;
