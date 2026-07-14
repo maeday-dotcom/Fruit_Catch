@@ -1,39 +1,24 @@
-let audioContext: AudioContext | null = null;
-
-function getAudioContext(): AudioContext {
-  audioContext ??= new AudioContext();
-  return audioContext;
-}
+const MEOW_URLS = [
+  `${import.meta.env.BASE_URL}sfx/cat_meow_1.mp3`,
+  `${import.meta.env.BASE_URL}sfx/cat_meow_2.mp3`,
+  `${import.meta.env.BASE_URL}sfx/cat_meow_3.mp3`,
+];
 
 /** Unlocks audio playback; call this from within a user-gesture handler. */
 export function unlockAudio(): void {
-  const ctx = getAudioContext();
-  if (ctx.state === 'suspended') {
-    void ctx.resume();
-  }
+  const audio = new Audio(MEOW_URLS[0]);
+  audio.volume = 0;
+  void audio
+    .play()
+    .then(() => audio.pause())
+    .catch(() => {
+      // Ignore - some browsers already allow playback without this priming step.
+    });
 }
 
-/** Plays a short synthesized "nya" meow (pitch rises then falls), no audio asset required. */
+/** Plays one of the three recorded meow clips at random. */
 export function playMeowSound(): void {
-  const ctx = getAudioContext();
-  const now = ctx.currentTime;
-
-  const oscillator = ctx.createOscillator();
-  const gain = ctx.createGain();
-
-  oscillator.type = 'triangle';
-  oscillator.frequency.setValueAtTime(420, now);
-  oscillator.frequency.linearRampToValueAtTime(720, now + 0.08);
-  oscillator.frequency.linearRampToValueAtTime(520, now + 0.2);
-  oscillator.frequency.linearRampToValueAtTime(300, now + 0.32);
-
-  gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.exponentialRampToValueAtTime(0.25, now + 0.05);
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
-
-  oscillator.connect(gain);
-  gain.connect(ctx.destination);
-
-  oscillator.start(now);
-  oscillator.stop(now + 0.35);
+  const url = MEOW_URLS[Math.floor(Math.random() * MEOW_URLS.length)];
+  const audio = new Audio(url);
+  void audio.play().catch((error) => console.warn('Failed to play meow sound:', error));
 }
