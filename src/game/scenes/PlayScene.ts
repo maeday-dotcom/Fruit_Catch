@@ -80,12 +80,12 @@ export class PlayScene extends Phaser.Scene {
       return;
     }
 
-    const width = this.scale.width;
-    const height = this.scale.height;
+    const videoSize = { width: this.videoElement.videoWidth, height: this.videoElement.videoHeight };
+    const canvasSize = { width: this.scale.width, height: this.scale.height };
 
     const handPoints: ScreenPoint[] = [];
     for (const pose of result.landmarks) {
-      handPoints.push(...getHandPoints(pose, width, height));
+      handPoints.push(...getHandPoints(pose, videoSize, canvasSize));
     }
     this.handOverlay.draw(handPoints);
 

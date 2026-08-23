@@ -34,5 +34,21 @@ export function unlockAudio(): void {
 export function playMeowSound(): void {
   const audio = meowAudioElements[Math.floor(Math.random() * meowAudioElements.length)];
   audio.currentTime = 0;
+  audio.playbackRate = 1;
   void audio.play().catch((error) => console.warn('Failed to play meow sound:', error));
+}
+
+/** Plays a random meow slowed down (longer/lower), for the "にゃー" countdown beat. */
+export function playStartMeow(): void {
+  const audio = meowAudioElements[Math.floor(Math.random() * meowAudioElements.length)];
+  audio.currentTime = 0;
+  audio.playbackRate = 0.8;
+  audio.addEventListener(
+    'ended',
+    () => {
+      audio.playbackRate = 1;
+    },
+    { once: true },
+  );
+  void audio.play().catch((error) => console.warn('Failed to play start meow:', error));
 }

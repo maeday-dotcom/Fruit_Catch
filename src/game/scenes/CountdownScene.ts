@@ -1,7 +1,8 @@
 import Phaser from 'phaser';
+import { playStartMeow } from '../../utils/sound';
 
 const COUNTDOWN_SECONDS = 3;
-const NYA_HOLD_MS = 700;
+const NYA_HOLD_MS = 1000;
 
 export class CountdownScene extends Phaser.Scene {
   private count = COUNTDOWN_SECONDS;
@@ -37,6 +38,7 @@ export class CountdownScene extends Phaser.Scene {
       this.countText.setText(String(this.count));
     } else {
       this.countText.setText('にゃー');
+      playStartMeow();
       this.time.delayedCall(NYA_HOLD_MS, () => this.scene.start('Play'));
     }
   }
