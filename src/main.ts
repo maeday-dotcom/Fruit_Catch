@@ -38,13 +38,16 @@ game.scene.add('Play', PlayScene);
 game.scene.add('Result', ResultScene);
 
 startButton.addEventListener('click', async () => {
+  // Unlock audio synchronously, before any await, so it stays within the tap's
+  // gesture window (iOS Safari revokes it as soon as the call stack yields).
+  unlockAudio();
+
   try {
     startButtonLabel.textContent = '起動中...';
     await cameraFeed.start();
     await poseProvider.initialize();
     await requestFullscreen();
     await requestWakeLock();
-    unlockAudio();
     startButton.classList.add('hidden');
     game.scene.start('Countdown');
   } catch (error) {
